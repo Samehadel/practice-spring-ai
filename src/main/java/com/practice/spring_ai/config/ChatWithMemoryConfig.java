@@ -7,43 +7,38 @@ import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
 import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;
 import org.springframework.ai.chat.client.advisor.api.Advisor;
 import org.springframework.ai.chat.memory.ChatMemory;
+import org.springframework.ai.chat.memory.MessageWindowChatMemory;
+import org.springframework.ai.chat.memory.repository.jdbc.JdbcChatMemoryRepository;
 import org.springframework.ai.chat.prompt.ChatOptions;
 import org.springframework.ai.ollama.OllamaChatModel;
-import org.springframework.ai.openai.OpenAiChatModel;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import java.util.ArrayList;
 import java.util.List;
+
 @Configuration
-public class ChatClientConfig {
+public class ChatWithMemoryConfig {
+    @Value("${spring.ai.chat.memory.max.messages}")
+    private int maxMessages;
 
     @Bean
-    public ChatClient openaiChatClient(OpenAiChatModel openAiChatModel) {
-        ChatClient.Builder chatClientBuilder = ChatClient.builder(openAiChatModel);
-        ChatOptions defaultChatOptions = ChatOptions.builder()
-                .maxTokens(100)
-                .temperature(0.8)
-                .build();
-        return chatClientBuilder
-                .defaultAdvisors(buildDefaultAdvisors())
-                .defaultSystem("""
-                You are a helpful assistant.
-                Be concise and not waste time.
-                """)
-                .defaultOptions(defaultChatOptions)
+    public ChatMemory chatMemory(JdbcChatMemoryRepository jdbcChatMemoryRepository) {
+        return MessageWindowChatMemory.builder()
+                .chatMemoryRepository(jdbcChatMemoryRepository)
+                .maxMessages(maxMessages)
                 .build();
     }
 
     @Bean
-    public ChatClient ollamaChatClient(OllamaChatModel ollamaChatModel) {
-        ChatClient.Builder chatClientBuilder = ChatClient.builder(ollamaChatModel);
+    public ChatClient ollamaInMemoryChatClient(OllamaChatModel ollamaChatModel, ChatMemory chatMemory) {
+        Advisor chatMemoryAdvisor = MessageChatMemoryAdvisor.builder(chatMemory).build();
         ChatOptions defaultChatOptions = buildDefualtChatOptions();
-        return chatClientBuilder.defaultSystem("""
-                You are a helpful assistant.
-                Be concise and not waste time.
-                """)
-                .defaultAdvisors(buildDefaultAdvisors())
+        List<Advisor> allAdvisors = buildDefaultAdvisors();
+        allAdvisors.add(chatMemoryAdvisor);
+        return ChatClient.builder(ollamaChatModel)
+                .defaultAdvisors(allAdvisors)
                 .defaultOptions(defaultChatOptions)
                 .build();
     }
@@ -64,6 +59,5 @@ public class ChatClientConfig {
             }
         };
     }
-
 
 }
