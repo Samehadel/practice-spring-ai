@@ -1,4 +1,4 @@
-package com.practice.spring_ai.config;
+package com.practice.spring_ai.data;
 
 import jakarta.annotation.PostConstruct;
 import lombok.AllArgsConstructor;

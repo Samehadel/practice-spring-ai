@@ -1,4 +1,4 @@
-package com.practice.spring_ai.config;
+package com.practice.spring_ai.data;
 
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
@@ -14,7 +14,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.Resource;
 
+import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 @Configuration
 @RequiredArgsConstructor
@@ -24,7 +27,6 @@ public class DocumentDataLoader {
 
     @Value("classpath:/documents/Future_of_Jobs_Report.pdf")
     private Resource futureOfJobsReport;
-
 
     @PostConstruct
     public void readPDF() {
@@ -53,7 +55,22 @@ public class DocumentDataLoader {
 
         log.info("Adding {} chunks to vector store.", chunks.size());
 
-        vectorStore.add(chunks);
+        List<Document> documents = chunks.stream()
+                .filter(chunk -> chunk.getText() != null && !chunk.getText().isEmpty())
+                .map(Document::getText)
+                .map(text -> new Document(stableId(text), text, Map.of()))
+                .toList();
+
+        List<String> ids = documents.stream()
+                .map(Document::getId)
+                .toList();
+
+        vectorStore.delete(ids);
+        vectorStore.add(documents);
+
     }
 
+    private String stableId(String content) {
+        return UUID.nameUUIDFromBytes(content.getBytes(StandardCharsets.UTF_8)).toString();
+    }
 }

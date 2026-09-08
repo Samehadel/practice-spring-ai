@@ -19,7 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Configuration
-public class ChatWithMemoryConfig {
+public class OllamaChatWithMemoryClientConfig {
     @Value("${spring.ai.chat.memory.max.messages}")
     private int maxMessages;
 
@@ -41,27 +41,6 @@ public class ChatWithMemoryConfig {
                 .defaultAdvisors(allAdvisors)
                 .defaultOptions(defaultChatOptions)
                 .build();
-    }
-
-    @Bean
-    public ChatClient ollamaRagChatClient(OllamaChatModel ollamaChatModel, ChatMemory chatMemory) {
-        Advisor chatMemoryAdvisor = MessageChatMemoryAdvisor.builder(chatMemory).build();
-        ChatOptions defaultChatOptions = buildDefualtChatOptions();
-        List<Advisor> ragAdvisors = buildRagAdvisors();
-        ragAdvisors.add(chatMemoryAdvisor);
-        return ChatClient.builder(ollamaChatModel)
-                .defaultAdvisors(ragAdvisors)
-                .defaultOptions(defaultChatOptions)
-                .build();
-    }
-
-    private List<Advisor> buildRagAdvisors() {
-        return new ArrayList<>() {
-            {
-                add(new SimpleLoggerAdvisor());
-                add(new TokenLoggingAdvisor());
-            }
-        };
     }
 
     private ChatOptions buildDefualtChatOptions() {
