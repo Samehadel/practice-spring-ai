@@ -4,6 +4,7 @@ import jakarta.annotation.PostConstruct;
 import lombok.AllArgsConstructor;
 import org.springframework.ai.document.Document;
 import org.springframework.ai.vectorstore.VectorStore;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets;
@@ -13,6 +14,7 @@ import java.util.UUID;
 
 @Component
 @AllArgsConstructor
+@ConditionalOnProperty(name = "spring.ai.practice.random-data-initializer.enabled", havingValue = "true")
 public class DocumentRandomDataInitializer {
     private final VectorStore vectorStore;
 

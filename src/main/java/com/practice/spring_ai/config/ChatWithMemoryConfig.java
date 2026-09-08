@@ -43,6 +43,27 @@ public class ChatWithMemoryConfig {
                 .build();
     }
 
+    @Bean
+    public ChatClient ollamaRagChatClient(OllamaChatModel ollamaChatModel, ChatMemory chatMemory) {
+        Advisor chatMemoryAdvisor = MessageChatMemoryAdvisor.builder(chatMemory).build();
+        ChatOptions defaultChatOptions = buildDefualtChatOptions();
+        List<Advisor> ragAdvisors = buildRagAdvisors();
+        ragAdvisors.add(chatMemoryAdvisor);
+        return ChatClient.builder(ollamaChatModel)
+                .defaultAdvisors(ragAdvisors)
+                .defaultOptions(defaultChatOptions)
+                .build();
+    }
+
+    private List<Advisor> buildRagAdvisors() {
+        return new ArrayList<>() {
+            {
+                add(new SimpleLoggerAdvisor());
+                add(new TokenLoggingAdvisor());
+            }
+        };
+    }
+
     private ChatOptions buildDefualtChatOptions() {
         return ChatOptions.builder()
                 .maxTokens(350)
