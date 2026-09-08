@@ -6,7 +6,10 @@ import org.springframework.ai.document.Document;
 import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.stereotype.Component;
 
+import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 @Component
 @AllArgsConstructor
@@ -40,9 +43,18 @@ public class DocumentRandomDataInitializer {
         );
 
         List<Document> documents = documentsString.stream()
-                .map(Document::new)
+                .map(text -> new Document(stableId(text), text, Map.of()))
                 .toList();
 
+        List<String> ids = documents.stream()
+                .map(Document::getId)
+                .toList();
+
+        vectorStore.delete(ids);
         vectorStore.add(documents);
+    }
+
+    private String stableId(String content) {
+        return UUID.nameUUIDFromBytes(content.getBytes(StandardCharsets.UTF_8)).toString();
     }
 }
