@@ -1,5 +1,6 @@
 package com.practice.spring_ai.advisors;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClientRequest;
 import org.springframework.ai.chat.client.ChatClientResponse;
 import org.springframework.ai.chat.client.advisor.api.CallAdvisor;
@@ -7,10 +8,8 @@ import org.springframework.ai.chat.client.advisor.api.CallAdvisorChain;
 import org.springframework.ai.chat.metadata.Usage;
 import org.springframework.ai.chat.model.ChatResponse;
 
-import java.util.logging.Logger;
-
+@Slf4j
 public class TokenLoggingAdvisor implements CallAdvisor {
-    private static final Logger LOGGER = Logger.getLogger(TokenLoggingAdvisor.class.getName());
     private static final int ORDER = 0;
     private static final String NAME = "TokenLoggingAdvisor";
 
@@ -24,8 +23,8 @@ public class TokenLoggingAdvisor implements CallAdvisor {
         }
 
         Usage usage = chatResponse.getMetadata().getUsage();
-        LOGGER.info("Request tokens used:" + usage.getPromptTokens());
-        LOGGER.info("Response tokens used: " + usage.getCompletionTokens());
+        log.info("Request tokens used:{}", usage.getPromptTokens());
+        log.info("Response tokens used: {}", usage.getCompletionTokens());
 
         return  chatClientResponse;
     }
