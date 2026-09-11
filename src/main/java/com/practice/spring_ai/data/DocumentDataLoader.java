@@ -4,9 +4,8 @@ import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.ai.document.Document;
-import org.springframework.ai.reader.ExtractedTextFormatter;
-import org.springframework.ai.reader.pdf.PagePdfDocumentReader;
-import org.springframework.ai.reader.pdf.config.PdfDocumentReaderConfig;
+import org.springframework.ai.document.DocumentReader;
+import org.springframework.ai.reader.tika.TikaDocumentReader;
 import org.springframework.ai.transformer.splitter.TextSplitter;
 import org.springframework.ai.transformer.splitter.TokenTextSplitter;
 import org.springframework.ai.vectorstore.VectorStore;
@@ -30,18 +29,10 @@ public class DocumentDataLoader {
 
     @PostConstruct
     public void readPDF() {
-        PagePdfDocumentReader pdfReader = new PagePdfDocumentReader(futureOfJobsReport,
-                PdfDocumentReaderConfig.builder()
-                        .withPageExtractedTextFormatter(ExtractedTextFormatter.builder()
-                                .withNumberOfBottomTextLinesToDelete(3)
-                                .withNumberOfTopPagesToSkipBeforeDelete(1)
-                                .build())
-                        .withPagesPerDocument(0)
-                        .build());
-
+        DocumentReader tikaReader = new TikaDocumentReader(futureOfJobsReport);
 
         log.info("Reading PDF: {}", futureOfJobsReport.getFilename());
-        List<Document> rawDocuments = pdfReader.get();
+        List<Document> rawDocuments = tikaReader.get();
         log.info("PDF {}read complete.", futureOfJobsReport.getFilename());
 
         TextSplitter splitter = new TokenTextSplitter(
