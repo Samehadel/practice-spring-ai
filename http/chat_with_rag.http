@@ -1,13 +1,13 @@
 ### chat-with-rag (Exist in documents)
-POST http://localhost:8080/rag/report?conversationsId=1
+POST http://localhost:8080/rag?clientId=c_2
 Content-Type: application/json
 
 {
-  "question": "How software engineering will change in the future, and what will be the impact on jobs?"
+  "question": "How LLMs get trained?"
 }
 
 ### chat-with-rag (Not in documents)
-POST http://localhost:8080/rag/report?conversationsId=1
+POST http://localhost:8080/rag/report?clientId=client-a&conversationsId=1
 Content-Type: application/json
 
 {
