@@ -1,0 +1,2 @@
+### ChatWithInMemory
+POST http://localhost:8080/chat-memory?prompt=How you trained?&conversationsId=1

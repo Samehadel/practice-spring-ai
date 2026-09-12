@@ -1,0 +1,15 @@
+### Basic Message
+POST http://localhost:8080/chat/ollama
+Content-Type: application/json
+
+Do you know how LLMs get trained, what are the phases?
+
+### Basic-Prompt-Template
+POST http://localhost:8080/prompt-template/basic
+Content-Type: application/json
+
+{
+  "customerName": "Sameh Adel",
+  "product": "Mini MAC",
+  "question": "How to connect smart display to it"
+}

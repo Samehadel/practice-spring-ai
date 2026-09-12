@@ -1,0 +1,15 @@
+### chat-with-rag (Exist in documents)
+POST http://localhost:8080/rag/report?conversationsId=1
+Content-Type: application/json
+
+{
+  "question": "How software engineering will change in the future, and what will be the impact on jobs?"
+}
+
+### chat-with-rag (Not in documents)
+POST http://localhost:8080/rag/report?conversationsId=1
+Content-Type: application/json
+
+{
+  "question": "How Tesla Cars get built?"
+}
