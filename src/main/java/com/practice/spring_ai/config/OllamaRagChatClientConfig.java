@@ -45,7 +45,7 @@ public class OllamaRagChatClientConfig {
         RetrievalAugmentationAdvisor retrievalAugmentationAdvisor = buildRetrievalAugmentationAdvisor(vectorStore);
         return new ArrayList<>() {
             {
-                add(new SimpleLoggerAdvisor(Integer.MAX_VALUE));
+                add(new SimpleLoggerAdvisor());
                 add(new TokenLoggingAdvisor());
                 add(retrievalAugmentationAdvisor);
             }
@@ -60,12 +60,19 @@ public class OllamaRagChatClientConfig {
     }
 
     private RetrievalAugmentationAdvisor buildRetrievalAugmentationAdvisor(VectorStore vectorStore) {
+        VectorStoreDocumentRetriever vectorStoreDocumentRetriever = VectorStoreDocumentRetriever.builder()
+                .vectorStore(vectorStore)
+                .topK(3)
+                .similarityThreshold(0.5)
+                .build();
+
+        ContextualQueryAugmenter queryAugmenter = ContextualQueryAugmenter.builder()
+                .promptTemplate(new PromptTemplate(systemPromptTemplate))
+                .build();
+
         return RetrievalAugmentationAdvisor.builder()
-                .documentRetriever(VectorStoreDocumentRetriever.builder().vectorStore(vectorStore)
-                        .topK(3).similarityThreshold(0.5).build())
-                .queryAugmenter(ContextualQueryAugmenter.builder()
-                        .promptTemplate(new PromptTemplate(systemPromptTemplate))
-                        .build())
+                .documentRetriever(vectorStoreDocumentRetriever)
+                .queryAugmenter(queryAugmenter)
                 .build();
     }
 }
