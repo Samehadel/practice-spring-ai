@@ -29,7 +29,7 @@ public class DocumentDataLoader {
     @Value("classpath:/documents/Future_of_Jobs_Report.pdf")
     private Resource futureOfJobsReport;
 
-    @PostConstruct
+    //@PostConstruct
     public void readPDF() {
         DocumentReader tikaReader = new TikaDocumentReader(futureOfJobsReport);
 
