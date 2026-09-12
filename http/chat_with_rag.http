@@ -1,9 +1,9 @@
 ### chat-with-rag (Exist in documents)
-POST http://localhost:8080/rag?clientId=c_2
+POST http://localhost:8080/rag?clientId=c_1
 Content-Type: application/json
 
 {
-  "question": "How LLMs get trained?"
+  "question": "How AI engineering required to build reliable deep learning-based software systems"
 }
 
 ### chat-with-rag (Not in documents)
