@@ -1,0 +1,7 @@
+### chat-with-rag (Exist in documents)
+POST http://localhost:8080/search
+Content-Type: application/json
+
+{
+  "question": "Who is Messi"
+}
