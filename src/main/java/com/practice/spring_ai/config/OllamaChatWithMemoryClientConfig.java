@@ -39,7 +39,7 @@ public class OllamaChatWithMemoryClientConfig {
         allAdvisors.add(chatMemoryAdvisor);
         return ChatClient.builder(ollamaChatModel)
                 .defaultAdvisors(allAdvisors)
-                .defaultOptions(defaultChatOptions)
+                .defaultOptions(defaultChatOptions.mutate())
                 .build();
     }
 

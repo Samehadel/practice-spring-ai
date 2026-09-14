@@ -37,7 +37,7 @@ public class OllamaWebSearchChatClientConfig {
                 """)
                 .defaultTools(webSearchTools)
                 .defaultAdvisors(buildDefaultAdvisors())
-                .defaultOptions(defaultChatOptions)
+                .defaultOptions(defaultChatOptions.mutate())
                 .build();
     }
 

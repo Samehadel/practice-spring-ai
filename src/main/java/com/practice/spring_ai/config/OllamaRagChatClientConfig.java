@@ -42,7 +42,7 @@ public class OllamaRagChatClientConfig {
         // ragAdvisors.add(chatMemoryAdvisor);
         return ChatClient.builder(ollamaChatModel)
                 .defaultAdvisors(ragAdvisors)
-                .defaultOptions(defaultChatOptions)
+                .defaultOptions(defaultChatOptions.mutate())
                 .build();
     }
 
@@ -75,12 +75,12 @@ public class OllamaRagChatClientConfig {
                 .promptTemplate(new PromptTemplate(systemPromptTemplate))
                 .build();
 
-        /*QueryTransformer queryTransformer = RewriteQueryTransformer.builder()
+        QueryTransformer queryTransformer = RewriteQueryTransformer.builder()
                 .chatClientBuilder(ollamaChatClientBuilder.clone())
-                .build();*/
+                .build();
 
         return RetrievalAugmentationAdvisor.builder()
-                //.queryTransformers(queryTransformer)
+                .queryTransformers(queryTransformer)
                 .documentRetriever(vectorStoreDocumentRetriever)
                 .queryAugmenter(queryAugmenter)
                 .build();

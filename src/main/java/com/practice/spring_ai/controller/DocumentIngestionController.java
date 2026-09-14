@@ -74,13 +74,13 @@ public class DocumentIngestionController {
     }
 
     private List<Document> splitDocuments(List<Document> rawDocuments) {
-        TextSplitter splitter = new TokenTextSplitter(
-                800,
-                350,
-                5,
-                10000,
-                true
-        );
+        TextSplitter splitter = TokenTextSplitter.builder()
+                .withChunkSize(800)
+                .withMinChunkSizeChars(350)
+                .withMinChunkLengthToEmbed(5)
+                .withMaxNumChunks(10000)
+                .withKeepSeparator(true)
+                .build();
         return splitter.apply(rawDocuments);
     }
 

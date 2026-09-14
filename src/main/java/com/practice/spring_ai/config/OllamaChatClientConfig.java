@@ -30,7 +30,7 @@ public class OllamaChatClientConfig {
                 Be concise and not waste time.
                 """)
                 .defaultAdvisors(buildDefaultAdvisors())
-                .defaultOptions(defaultChatOptions)
+                .defaultOptions(defaultChatOptions.mutate())
                 .build();
     }
 

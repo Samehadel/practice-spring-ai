@@ -2,6 +2,7 @@ package com.practice.spring_ai.advisors;
 
 import org.springframework.ai.chat.client.ChatClientRequest;
 import org.springframework.ai.chat.client.ChatClientResponse;
+import org.springframework.ai.chat.client.advisor.ToolCallingAdvisor;
 import org.springframework.ai.chat.client.advisor.api.*;
 import org.springframework.ai.chat.model.ToolContext;
 import org.springframework.ai.model.tool.ToolCallingChatOptions;
@@ -27,7 +28,7 @@ public class SearchBudgetAdvisor implements CallAdvisor, StreamAdvisor {
             throw new IllegalStateException("Web search requires tool calling options");
         }
         var calls = new AtomicInteger();
-        options.setToolCallbacks(options.getToolCallbacks().stream().map(callback -> {
+        var budgetedOptions = options.mutate().toolCallbacks(options.getToolCallbacks().stream().map(callback -> {
             if (!callback.getToolDefinition().name().equals("webSearch")) return callback;
 
             return new ToolCallback() {
@@ -42,8 +43,10 @@ public class SearchBudgetAdvisor implements CallAdvisor, StreamAdvisor {
                     return callback.call(input, context);
                 }
             };
-        }).toList());
-        return copy;
+        }).toList()).build();
+        return copy.mutate()
+                .prompt(copy.prompt().mutate().chatOptions(budgetedOptions).build())
+                .build();
     }
 
     public ChatClientResponse adviseCall(ChatClientRequest request, CallAdvisorChain chain) {
@@ -55,5 +58,6 @@ public class SearchBudgetAdvisor implements CallAdvisor, StreamAdvisor {
     }
 
     public String getName() { return "SearchBudgetAdvisor"; }
-    public int getOrder() { return 100; }
+    // Allocate the budget once, before Spring AI 2's tool-calling loop begins.
+    public int getOrder() { return ToolCallingAdvisor.DEFAULT_ORDER - 1; }
 }
