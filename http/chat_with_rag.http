@@ -3,11 +3,11 @@ POST http://localhost:8080/rag?clientId=c_1
 Content-Type: application/json
 
 {
-  "question": "How AI engineering required to build reliable deep learning-based software systems"
+  "question": "What is the required approach for Software Engineering in Deep Learning Systems?"
 }
 
 ### chat-with-rag (Not in documents)
-POST http://localhost:8080/rag/report?clientId=client-a&conversationsId=1
+POST http://localhost:8080/rag?clientId=c_1
 Content-Type: application/json
 
 {

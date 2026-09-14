@@ -1,0 +1,13 @@
+### chat-with-rag (Exist in documents)
+POST http://localhost:8080/web-search
+Content-Type: application/json
+
+{
+  "question": "How to train for SPECTAL according to latest WHO research at 12 Sep 2026?"
+}
+
+### Dedicated Ollama web search chat (requires TAVILY_API_KEY)
+POST http://localhost:8080/chat/ollama/web-search
+Content-Type: text/plain
+
+Search the web for the latest Spring AI release and cite the official source URL.

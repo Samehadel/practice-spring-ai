@@ -17,6 +17,11 @@ import java.util.List;
 public class OllamaChatClientConfig {
 
     @Bean
+    public ChatClient.Builder ollamaChatClientBuilder(OllamaChatModel ollamaChatModel) {
+        return ChatClient.builder(ollamaChatModel);
+    }
+
+    @Bean
     public ChatClient ollamaChatClient(OllamaChatModel ollamaChatModel) {
         ChatClient.Builder chatClientBuilder = ChatClient.builder(ollamaChatModel);
         ChatOptions defaultChatOptions = buildDefualtChatOptions();
