@@ -67,20 +67,20 @@ public class OllamaRagChatClientConfig {
     private RetrievalAugmentationAdvisor buildRetrievalAugmentationAdvisor(VectorStore vectorStore) {
         VectorStoreDocumentRetriever vectorStoreDocumentRetriever = VectorStoreDocumentRetriever.builder()
                 .vectorStore(vectorStore)
-                .topK(3)
-                .similarityThreshold(0.8)
+                .topK(10)
+                .similarityThreshold(0.6)
                 .build();
 
         ContextualQueryAugmenter queryAugmenter = ContextualQueryAugmenter.builder()
                 .promptTemplate(new PromptTemplate(systemPromptTemplate))
                 .build();
 
-        QueryTransformer queryTransformer = RewriteQueryTransformer.builder()
+        /*QueryTransformer queryTransformer = RewriteQueryTransformer.builder()
                 .chatClientBuilder(ollamaChatClientBuilder.clone())
-                .build();
+                .build();*/
 
         return RetrievalAugmentationAdvisor.builder()
-                .queryTransformers(queryTransformer)
+                //.queryTransformers(queryTransformer)
                 .documentRetriever(vectorStoreDocumentRetriever)
                 .queryAugmenter(queryAugmenter)
                 .build();
