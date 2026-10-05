@@ -1,5 +1,6 @@
 package com.practice.spring_ai.tools;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.tool.annotation.Tool;
 import org.springframework.stereotype.Component;
 
@@ -8,6 +9,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 @Component
+@Slf4j
 public class PersonalFinanceTools {
 
     private static final LocalDate SNAPSHOT_DATE = LocalDate.of(2026, 10, 6);
@@ -24,11 +26,13 @@ public class PersonalFinanceTools {
 
     @Tool(name = "getCurrentBalance", description = "Get the sample account balance in USD as of October 6, 2026.")
     public Balance getCurrentBalance() {
+        log.info("Finance tool invoked: getCurrentBalance");
         return new Balance(SNAPSHOT_DATE, CURRENCY, BALANCE);
     }
 
     @Tool(name = "getExpenses", description = "Get all sample expenses from October 1 through October 6, 2026, with dates, categories, descriptions and amounts in USD. Use these records for questions about spending, totals, or spending by category.")
     public List<Expense> getExpenses() {
+        log.info("Finance tool invoked: getExpenses");
         return EXPENSES;
     }
 

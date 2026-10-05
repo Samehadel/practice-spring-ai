@@ -3,6 +3,7 @@ package com.practice.spring_ai.controller;
 import com.practice.spring_ai.tools.PersonalFinanceTools;
 import lombok.RequiredArgsConstructor;
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.prompt.ChatOptions;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,7 +22,9 @@ public class PersonalFinanceController {
         return ollamaChatClient.prompt()
                 .system("Answer questions about the sample account using the registered finance tools. "
                         + "The balance and expenses are hardcoded sample data as of October 6, 2026. "
-                        + "Do not claim to have access to live financial data.")
+                        + "Do not claim to have access to live financial data. "
+                        + "If a later tool call depends on an earlier result, request it after receiving that result.")
+                .options(ChatOptions.builder().temperature(0.0))
                 .tools(personalFinanceTools)
                 .user(question)
                 .call()
