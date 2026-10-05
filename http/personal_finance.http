@@ -1,0 +1,17 @@
+### Balance
+POST http://localhost:8080/personal-finance
+Content-Type: text/plain
+
+"What is my account balance?"
+
+### Expenses
+POST http://localhost:8080/personal-finance
+Content-Type: text/plain
+
+"How much did I spend on groceries, and what were my total expenses?"
+
+### Both tools
+POST http://localhost:8080/personal-finance
+Content-Type: text/plain
+
+"What is my balance and what did I spend on rent?"
