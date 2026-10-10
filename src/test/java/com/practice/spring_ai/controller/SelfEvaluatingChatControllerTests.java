@@ -103,6 +103,38 @@ class SelfEvaluatingChatControllerTests {
         assertThatThrownBy(() -> controller.chat(prompt(), "customer-1")).isSameAs(unavailable);
     }
 
+    @Test
+    void shouldEvaluateExactlyYesEvenWhenModelAnswersNo() throws Exception {
+        List<Document> documents = List.of(new Document("A receipt is required."));
+        stubResponse("No, a receipt is not required.", documents);
+        when(evaluator.evaluate(any())).thenAnswer(invocation -> {
+            EvaluationRequest request = invocation.getArgument(0);
+            assertThat(request.getResponseContent()).isEqualTo("Yes");
+            assertThat(request.getDataList()).isSameAs(documents);
+            return new EvaluationResponse(true, "", Map.of());
+        });
+
+        mvc.perform(post("/self-evaluating-chat/incorrect").param("clientId", "customer-1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"question\":\"Is a receipt required?\"}"))
+                .andExpect(status().isOk())
+                .andExpect(content().string("Yes"));
+    }
+
+    @Test
+    void shouldStillRejectTheFixedYesCandidateWhenEvaluationFails() {
+        stubResponse("No", List.of(new Document("Sale items cannot be returned.")));
+        when(evaluator.evaluate(any())).thenAnswer(invocation -> {
+            EvaluationRequest request = invocation.getArgument(0);
+            assertThat(request.getResponseContent()).isEqualTo("Yes");
+            return new EvaluationResponse(false, "", Map.of());
+        });
+        BasicPrompt question = new BasicPrompt();
+        question.setQuestion("Can I return a sale item?");
+        assertThatThrownBy(() -> controller.chatWithIncorrectResponse(question, "customer-1"))
+                .isInstanceOf(InvalidLlmResponseException.class);
+    }
+
     private void stubResponse(String answer, List<Document> documents) {
         ChatResponse response = ChatResponse.builder()
                 .generations(List.of(new Generation(new AssistantMessage(answer))))
