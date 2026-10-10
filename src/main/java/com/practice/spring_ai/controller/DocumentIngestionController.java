@@ -10,6 +10,7 @@ import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.MediaType;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -49,6 +50,22 @@ public class DocumentIngestionController {
 
         vectorStore.add(tenantChunks);
 
+        return new DocumentIngestionResponse(clientId.trim(), filename, tenantChunks.size());
+    }
+
+    @PostMapping(value = "/text", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public DocumentIngestionResponse ingestText(@RequestParam String clientId,
+                                               @RequestBody TextDocumentRequest request) {
+        if (!StringUtils.hasText(clientId)) {
+            throw new ResponseStatusException(BAD_REQUEST, "clientId is required");
+        }
+        if (!StringUtils.hasText(request.text())) {
+            throw new ResponseStatusException(BAD_REQUEST, "Document text is required");
+        }
+        String filename = StringUtils.hasText(request.filename()) ? request.filename().trim() : "document.txt";
+        List<Document> chunks = splitDocuments(List.of(new Document(request.text().trim())));
+        List<Document> tenantChunks = addTenantMetadata(chunks, clientId.trim(), filename);
+        vectorStore.add(tenantChunks);
         return new DocumentIngestionResponse(clientId.trim(), filename, tenantChunks.size());
     }
 
@@ -104,6 +121,9 @@ public class DocumentIngestionController {
     }
 
     public record DocumentIngestionResponse(String clientId, String filename, int chunksStored) {
+    }
+
+    public record TextDocumentRequest(String filename, String text) {
     }
 
     private static final class MultipartFileResource extends ByteArrayResource {

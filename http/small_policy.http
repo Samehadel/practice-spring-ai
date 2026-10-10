@@ -1,0 +1,10 @@
+### Store a small policy using a dedicated client ID to isolate it from large documents.
+POST http://localhost:8080/documents/text?clientId=small-policy-demo
+Content-Type: application/json
+
+{
+  "filename": "receipt-policy.txt",
+  "text": "Customers may return unused items within 30 days of delivery. A receipt is required. Sale items are non-refundable. Damaged items must be reported within 48 hours of delivery."
+}
+
+### Ask a specific question and evaluate the generated answer against the retrieved policy.
