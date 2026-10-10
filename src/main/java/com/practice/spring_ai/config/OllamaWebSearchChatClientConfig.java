@@ -1,20 +1,13 @@
 package com.practice.spring_ai.config;
 
 import com.practice.spring_ai.advisors.SearchBudgetAdvisor;
-import com.practice.spring_ai.advisors.TokenLoggingAdvisor;
 import com.practice.spring_ai.tools.WebSearchTools;
 import org.springframework.ai.chat.client.ChatClient;
-import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;
-import org.springframework.ai.chat.client.advisor.api.Advisor;
 import org.springframework.ai.chat.prompt.ChatOptions;
 import org.springframework.ai.model.tool.ToolCallingChatOptions;
-import org.springframework.ai.ollama.OllamaChatModel;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Configuration
 public class OllamaWebSearchChatClientConfig {
@@ -22,10 +15,9 @@ public class OllamaWebSearchChatClientConfig {
     private int maxSearches;
 
     @Bean
-    public ChatClient ollamaWebSearchChatClient(OllamaChatModel ollamaChatModel, WebSearchTools webSearchTools) {
-        ChatClient.Builder chatClientBuilder = ChatClient.builder(ollamaChatModel);
+    public ChatClient ollamaWebSearchChatClient(ChatClient.Builder ollamaChatClientBuilder, WebSearchTools webSearchTools) {
         ChatOptions defaultChatOptions = buildDefualtChatOptions();
-        return chatClientBuilder.defaultSystem("""
+        return ollamaChatClientBuilder.clone().defaultSystem("""
                 You are a helpful assistant.
                 Be concise. Use webSearch when fresh information or external verification is needed.
                 Answer stable general-knowledge questions without unnecessary searches.
@@ -36,7 +28,7 @@ public class OllamaWebSearchChatClientConfig {
                 Stop searching once sufficient evidence is available.
                 """)
                 .defaultTools(webSearchTools)
-                .defaultAdvisors(buildDefaultAdvisors())
+                .defaultAdvisors(new SearchBudgetAdvisor(maxSearches))
                 .defaultOptions(defaultChatOptions.mutate())
                 .build();
     }
@@ -47,16 +39,4 @@ public class OllamaWebSearchChatClientConfig {
                 .temperature(0.8)
                 .build();
     }
-
-    private List<Advisor> buildDefaultAdvisors() {
-        return new ArrayList<>() {
-            {
-                add(new SimpleLoggerAdvisor());
-                add(new TokenLoggingAdvisor());
-                add(new SearchBudgetAdvisor(maxSearches));
-            }
-        };
-    }
-
-
 }

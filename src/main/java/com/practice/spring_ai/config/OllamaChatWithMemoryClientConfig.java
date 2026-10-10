@@ -1,21 +1,16 @@
 package com.practice.spring_ai.config;
 
 import com.practice.spring_ai.advisors.CaseInsensitiveSafeGuardAdvisor;
-import com.practice.spring_ai.advisors.TokenLoggingAdvisor;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
-import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;
-import org.springframework.ai.chat.client.advisor.api.Advisor;
 import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.chat.memory.MessageWindowChatMemory;
 import org.springframework.ai.chat.memory.repository.jdbc.JdbcChatMemoryRepository;
 import org.springframework.ai.chat.prompt.ChatOptions;
-import org.springframework.ai.ollama.OllamaChatModel;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Configuration
@@ -32,13 +27,11 @@ public class OllamaChatWithMemoryClientConfig {
     }
 
     @Bean
-    public ChatClient ollamaInMemoryChatClient(OllamaChatModel ollamaChatModel, ChatMemory chatMemory) {
-        Advisor chatMemoryAdvisor = MessageChatMemoryAdvisor.builder(chatMemory).build();
+    public ChatClient ollamaInMemoryChatClient(ChatClient.Builder ollamaChatClientBuilder, ChatMemory chatMemory) {
         ChatOptions defaultChatOptions = buildDefualtChatOptions();
-        List<Advisor> allAdvisors = buildDefaultAdvisors();
-        allAdvisors.add(chatMemoryAdvisor);
-        return ChatClient.builder(ollamaChatModel)
-                .defaultAdvisors(allAdvisors)
+        return ollamaChatClientBuilder.clone()
+                .defaultAdvisors(new CaseInsensitiveSafeGuardAdvisor(List.of("Kill", "Harm", "Die")))
+                .defaultAdvisors(MessageChatMemoryAdvisor.builder(chatMemory).build())
                 .defaultOptions(defaultChatOptions.mutate())
                 .build();
     }
@@ -49,15 +42,4 @@ public class OllamaChatWithMemoryClientConfig {
                 .temperature(0.8)
                 .build();
     }
-
-    private List<Advisor> buildDefaultAdvisors() {
-        return new ArrayList<>() {
-            {
-                add(new SimpleLoggerAdvisor());
-                add(new CaseInsensitiveSafeGuardAdvisor(List.of("Kill", "Harm", "Die")));
-                add(new TokenLoggingAdvisor());
-            }
-        };
-    }
-
 }

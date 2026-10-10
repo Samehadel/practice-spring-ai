@@ -3,33 +3,42 @@ package com.practice.spring_ai.config;
 import com.practice.spring_ai.advisors.CaseInsensitiveSafeGuardAdvisor;
 import com.practice.spring_ai.advisors.TokenLoggingAdvisor;
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.client.ChatClientBuilderCustomizer;
 import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;
-import org.springframework.ai.chat.client.advisor.api.Advisor;
 import org.springframework.ai.chat.prompt.ChatOptions;
 import org.springframework.ai.ollama.OllamaChatModel;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Configuration
 public class OllamaChatClientConfig {
 
     @Bean
-    public ChatClient.Builder ollamaChatClientBuilder(OllamaChatModel ollamaChatModel) {
-        return ChatClient.builder(ollamaChatModel);
+    public ChatClientBuilderCustomizer sharedChatClientDefaults() {
+        return builder -> builder.defaultAdvisors(
+                new SimpleLoggerAdvisor(),
+                new TokenLoggingAdvisor());
     }
 
     @Bean
-    public ChatClient ollamaChatClient(OllamaChatModel ollamaChatModel) {
-        ChatClient.Builder chatClientBuilder = ChatClient.builder(ollamaChatModel);
+    public ChatClient.Builder ollamaChatClientBuilder(
+            OllamaChatModel ollamaChatModel,
+            ChatClientBuilderCustomizer sharedChatClientDefaults) {
+        ChatClient.Builder builder = ChatClient.builder(ollamaChatModel);
+        sharedChatClientDefaults.customize(builder);
+        return builder;
+    }
+
+    @Bean
+    public ChatClient ollamaChatClient(ChatClient.Builder ollamaChatClientBuilder) {
         ChatOptions defaultChatOptions = buildDefualtChatOptions();
-        return chatClientBuilder.defaultSystem("""
+        return ollamaChatClientBuilder.clone().defaultSystem("""
                 You are a helpful assistant.
                 Be concise and not waste time.
                 """)
-                .defaultAdvisors(buildDefaultAdvisors())
+                .defaultAdvisors(new CaseInsensitiveSafeGuardAdvisor(List.of("Kill", "Harm", "Die")))
                 .defaultOptions(defaultChatOptions.mutate())
                 .build();
     }
@@ -40,16 +49,4 @@ public class OllamaChatClientConfig {
                 .temperature(0.8)
                 .build();
     }
-
-    private List<Advisor> buildDefaultAdvisors() {
-        return new ArrayList<>() {
-            {
-                add(new SimpleLoggerAdvisor());
-                add(new CaseInsensitiveSafeGuardAdvisor(List.of("Kill", "Harm", "Die")));
-                add(new TokenLoggingAdvisor());
-            }
-        };
-    }
-
-
 }
